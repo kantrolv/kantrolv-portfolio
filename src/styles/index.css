@@ -7,11 +7,14 @@
 :root {
   --paper: #f4efe6;
   --paper-deep: #ede5d5;
+  --plate: #f1ebdf;
   --ink: #1a1a18;
-  --ink-60: rgba(26, 26, 24, 0.6);
-  --ink-38: rgba(26, 26, 24, 0.38);
+  --ink-60: rgba(26, 26, 24, 0.68); /* AA-small on every paper tone */
+  --ink-38: rgba(26, 26, 24, 0.38); /* decorative aria-hidden text only */
   --forest: #1e3a2f;
-  --gold: #b08d57;
+  --gold: #b08d57; /* ornament only — rules, borders, diamonds; never small text */
+  --gold-text: #7e5f33; /* small-caps gold text — AA-small on paper/deep/plate */
+  --gold-figure: #9a7434; /* large gold figures — AA-large on all papers */
   --gold-70: rgba(176, 141, 87, 0.7);
   --gold-35: rgba(176, 141, 87, 0.35);
   --gold-18: rgba(176, 141, 87, 0.18);
@@ -132,7 +135,7 @@ button {
 }
 
 .label--gold {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .label--forest {
@@ -147,12 +150,13 @@ button {
   color: var(--ink);
 }
 
-/* thin gold rule */
+/* thin gold rule — letterpressed: a light catch under the incised line */
 .rule {
   display: block;
   height: 1px;
   border: 0;
   background: var(--gold-35);
+  box-shadow: 0 1px 0 rgba(255, 252, 242, 0.75);
 }
 
 /* mask for authored line-by-line reveals */
@@ -402,16 +406,12 @@ button {
   z-index: 2;
   text-align: center;
 }
-.preloader__count {
-  font-family: var(--serif);
-  font-size: clamp(3.5rem, 9vw, 6.5rem);
-  font-weight: 500;
-  color: var(--gold);
-  font-variant-numeric: lining-nums tabular-nums;
-  line-height: 1;
+.preloader__monogram {
+  width: clamp(76px, 10vw, 110px);
+  margin: 0 auto;
 }
 .preloader__label {
-  margin-top: 1.4rem;
+  margin-top: 1.6rem;
 }
 
 /* ————— fluid ink cursor ————— */
@@ -509,7 +509,7 @@ html.is-live .thread {
   transition: color 0.5s var(--ease-regal);
 }
 .nav__link .n {
-  color: var(--gold-70);
+  color: var(--gold-text);
   margin-right: 0.45em;
   font-family: var(--serif);
   font-style: italic;
@@ -590,7 +590,7 @@ html.is-live .thread {
   writing-mode: vertical-rl;
 }
 .margin-note .gold {
-  color: var(--gold-70);
+  color: var(--gold-text);
 }
 
 @media (max-width: 1099px) {
@@ -618,6 +618,7 @@ html.is-live .thread {
   width: min(180px, 40vw);
   height: 1px;
   background: var(--gold-35);
+  box-shadow: 0 1px 0 rgba(255, 252, 242, 0.75);
 }
 .epigraph__text {
   font-family: var(--serif);
@@ -653,7 +654,7 @@ html.is-live .thread {
   display: flex;
   align-items: center;
   gap: 1.2rem;
-  margin-bottom: clamp(1.4rem, 3.5vh, 2.4rem);
+  margin-top: clamp(1.5rem, 3.8vh, 2.6rem);
 }
 .overture__role .rule {
   width: clamp(28px, 4vw, 56px);
@@ -671,12 +672,26 @@ html.is-live .thread {
 .overture__name .line {
   display: block;
 }
-.overture__name .line:nth-child(2) {
+/* each glyph is its own kinetic body — lifted + ink-swollen near the pointer */
+.overture__name .ch {
+  display: inline-block;
+  font-variation-settings: 'wght' var(--kv-wght, 500);
+}
+.overture__name .line-mask:nth-child(2) .line {
+  color: var(--forest);
+}
+
+.overture__statement {
+  margin-top: clamp(1.1rem, 2.6vh, 1.8rem);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.9vw, 1.45rem);
+  line-height: 1.4;
   color: var(--forest);
 }
 
 .overture__baseline {
-  margin-top: clamp(1.8rem, 4.5vh, 3rem);
+  margin-top: clamp(1.5rem, 3.8vh, 2.5rem);
   width: min(420px, 70vw);
   background: var(--gold-70);
 }
@@ -736,12 +751,13 @@ html.is-live .thread {
   gap: clamp(2rem, 5vw, 5rem);
   max-width: 62rem;
 }
+/* Ragged right, always — justified columns breed rivers. */
 .summary__col {
   font-size: 0.9875rem;
   line-height: 1.85;
   color: var(--ink-60);
-  text-align: justify;
-  hyphens: auto;
+  text-align: left;
+  max-width: 36em;
 }
 .summary__first {
   display: grid;
@@ -785,6 +801,18 @@ html.is-live .thread {
   gap: clamp(3rem, 6vw, 5.5rem) clamp(3rem, 8vw, 8rem);
 }
 
+/* the Intelligence cluster leads the board, full width, rows in two columns */
+.cluster--lead {
+  grid-column: 1 / -1;
+}
+.cluster--lead .cluster__rows {
+  columns: 2;
+  column-gap: clamp(3rem, 8vw, 8rem);
+}
+.cluster--lead .cluster__row {
+  break-inside: avoid;
+}
+
 .cluster__head {
   display: flex;
   align-items: baseline;
@@ -809,7 +837,7 @@ html.is-live .thread {
   font-size: 0.5625rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--ink-38);
+  color: var(--ink-60);
   font-weight: 500;
 }
 
@@ -861,16 +889,25 @@ html.is-live .thread {
   border-bottom: 1px dotted var(--gold-35);
   margin-bottom: 0.5em;
 }
-.cluster__row .tick {
-  width: 13px;
-  height: 11px;
+/* the annotation column — citations in gold, standings in ink */
+.cluster__row .note {
   flex: none;
   margin-left: 0.9rem;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+  white-space: nowrap;
 }
-.cluster__row .tick path {
-  stroke: var(--gold);
-  stroke-width: 1.5;
-  fill: none;
+.cluster__row .note--cite {
+  color: var(--gold-text);
+}
+/* headline strengths set in serif — rank made visible */
+.cluster__row--lead .name {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  letter-spacing: 0;
 }
 
 .skills__certs {
@@ -911,7 +948,46 @@ html.is-live .thread {
   width: clamp(40px, 8vw, 120px);
 }
 
+/* ————— the exhibition plate: a distinct sheet laid on the paper ————— */
+
+.entry {
+  padding: 3vh clamp(0.9rem, 3vw, 2.5rem); /* paper stays visible around the sheet */
+}
+.plate {
+  position: relative;
+  background: var(--plate);
+  border-radius: 3px;
+}
+/* lift shadow on its own layer so the choreography can breathe it */
+.plate__shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 1px 2px rgba(26, 26, 24, 0.05),
+    0 10px 28px -8px rgba(26, 26, 24, 0.13),
+    0 34px 68px -26px rgba(26, 26, 24, 0.22);
+}
+.plate__frame {
+  position: absolute;
+  inset: clamp(10px, 1.4vw, 16px);
+  border: 1px solid var(--gold-18);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.plate__index {
+  position: absolute;
+  bottom: clamp(1.5rem, 2.4vw, 2.1rem); /* bottom corner — the top sits under the fixed nav */
+  right: clamp(1.7rem, 2.6vw, 2.3rem);
+  z-index: 2;
+  font-size: 0.5625rem;
+  color: var(--ink-38);
+}
+
 .entry .scene__inner {
+  min-height: 94vh; /* + 2 × 3vh entry padding = one viewport when pinned */
+  min-height: 94svh;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   align-items: center;
@@ -990,14 +1066,25 @@ html.is-live .thread {
   font-family: var(--serif);
   font-size: clamp(2.6rem, 5vw, 4.2rem);
   font-weight: 500;
-  color: var(--gold);
+  color: var(--gold-figure);
   line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
 }
+.entry__metric-copy {
+  display: grid;
+  gap: 0.3rem;
+}
 .entry__metric .what {
-  max-width: 13em;
+  max-width: 15em;
   line-height: 1.7;
   font-size: 0.625rem;
+}
+/* the honesty line — the baseline the figure is measured against */
+.entry__metric .basis {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.8125rem;
+  color: var(--ink-60);
 }
 
 .entry__tags {
@@ -1042,6 +1129,11 @@ html.is-live .thread {
   width: min(680px, 100%);
   padding: clamp(2.6rem, 6vw, 4.5rem) clamp(1.6rem, 5vw, 4rem);
   background: var(--paper-deep);
+  /* card stock lifting off the sheet */
+  box-shadow:
+    0 1px 2px rgba(26, 26, 24, 0.05),
+    0 14px 34px -10px rgba(26, 26, 24, 0.14),
+    0 40px 80px -32px rgba(26, 26, 24, 0.2);
 }
 .contact__border {
   position: absolute;
@@ -1130,10 +1222,10 @@ html.is-live .thread {
   font-weight: 500;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--ink-38);
+  color: var(--ink-60);
 }
 .footer__item .time {
-  color: var(--gold);
+  color: var(--gold-text);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1156,8 +1248,6 @@ html.is-live .thread {
     gap: 1.1rem;
   }
   .summary__col {
-    text-align: left;
-    hyphens: none;
     font-size: 0.9rem;
     line-height: 1.7;
   }
@@ -1179,12 +1269,20 @@ html.is-live .thread {
     display: none;
   }
 
+  .entry {
+    padding: 1.5vh 0.75rem;
+  }
   .entry .scene__inner {
+    min-height: 97vh;
+    min-height: 97svh;
     grid-template-columns: 1fr;
     gap: 1rem;
     align-content: center;
     padding-top: 5.5rem;
     padding-bottom: 3.5rem;
+  }
+  .plate__index {
+    display: none; /* the margin already carries the plate number */
   }
   .entry__numeral {
     width: clamp(88px, 24vw, 150px);

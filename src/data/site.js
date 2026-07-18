@@ -1,6 +1,5 @@
 /**
  * Single source of truth for identity, copy, and links.
- * Replace the '#' placeholders with real URLs — nothing else needs touching.
  */
 export const site = {
   name: 'Kantrol Vamshi Krishna',
@@ -47,25 +46,35 @@ export const epigraphs = [
 ]
 
 /**
- * The honours board. Add a row to a cluster and it simply appears, ruled,
- * marked, and ticked. Each row is `{ name, icon }`; `icon` is a simple-icons
- * slug mapped in src/lib/icons.js. Omit `icon` (or use a slug with no clean
- * glyph) to get a tasteful diamond ornament instead of a mismatched logo.
+ * The honours board — RANKED. Order is meaning: the top of each cluster is
+ * the headline, and the Intelligence cluster leads the whole board.
+ *
+ * Each row's annotation must SAY something:
+ *   cite      — the catalogue entries the skill shipped in ('№ 01 · 02'),
+ *               set in gold like a citation. Only claim what the catalogue
+ *               actually backs.
+ *   standing  — an honest tier where there is no shipped reference:
+ *               'Core practice' · 'Working fluency' · 'In study'.
+ *   lead      — sets the row in serif as a headline strength.
+ *
+ * `icon` is a simple-icons slug mapped in src/lib/icons.js; omit it for a
+ * tasteful diamond ornament instead of a mismatched logo.
  */
 export const skillClusters = [
   {
     numeral: 'i',
     title: 'Intelligence',
     sub: 'AI & Machine Learning',
+    lead: true,
     rows: [
-      { name: 'Retrieval-Augmented Generation' },
-      { name: 'LangChain & LangGraph', icon: 'langchain' },
-      { name: 'FAISS & Vector Embeddings' },
-      { name: 'CrewAI · Agentic Systems' },
-      { name: 'PyTorch', icon: 'pytorch' },
-      { name: 'Natural Language Processing' },
-      { name: 'OpenAI API · Groq' },
-      { name: 'Python', icon: 'python' },
+      { name: 'Retrieval-Augmented Generation', cite: '№ 01', lead: true },
+      { name: 'LangChain & LangGraph', icon: 'langchain', cite: '№ 01', lead: true },
+      { name: 'CrewAI · Agentic Systems', standing: 'Core practice', lead: true },
+      { name: 'FAISS & Vector Embeddings', cite: '№ 01' },
+      { name: 'OpenAI API · Groq', cite: '№ 01' },
+      { name: 'Python', icon: 'python', cite: '№ 01' },
+      { name: 'Natural Language Processing', standing: 'Core practice' },
+      { name: 'PyTorch', icon: 'pytorch', standing: 'In study' },
     ],
   },
   {
@@ -73,12 +82,12 @@ export const skillClusters = [
     title: 'Front of House',
     sub: 'Interface Engineering',
     rows: [
-      { name: 'React', icon: 'react' },
-      { name: 'TypeScript · JavaScript', icon: 'typescript' },
-      { name: 'Tailwind CSS', icon: 'tailwindcss' },
-      { name: 'Three.js', icon: 'threejs' },
-      { name: 'HTML & CSS', icon: 'html5' },
-      { name: 'Figma · UI/UX', icon: 'figma' },
+      { name: 'React', icon: 'react', cite: '№ 02' },
+      { name: 'TypeScript · JavaScript', icon: 'typescript', standing: 'Working fluency' },
+      { name: 'Tailwind CSS', icon: 'tailwindcss', standing: 'Working fluency' },
+      { name: 'HTML & CSS', icon: 'html5', standing: 'Working fluency' },
+      { name: 'Figma · UI/UX', icon: 'figma', standing: 'Working fluency' },
+      { name: 'Three.js', icon: 'threejs', standing: 'In study' },
     ],
   },
   {
@@ -86,12 +95,12 @@ export const skillClusters = [
     title: 'Back of House',
     sub: 'Servers & Data',
     rows: [
-      { name: 'Node.js · Express', icon: 'node' },
-      { name: 'Prisma ORM', icon: 'prisma' },
-      { name: 'PostgreSQL · MySQL', icon: 'postgresql' },
-      { name: 'MongoDB · NoSQL', icon: 'mongodb' },
-      { name: 'JWT · OAuth 2.0', icon: 'jwt' },
-      { name: 'SQL' },
+      { name: 'Node.js · Express', icon: 'node', cite: '№ 02 · 03' },
+      { name: 'Prisma ORM', icon: 'prisma', cite: '№ 03' },
+      { name: 'PostgreSQL · MySQL', icon: 'postgresql', cite: '№ 03' },
+      { name: 'MongoDB · NoSQL', icon: 'mongodb', cite: '№ 02' },
+      { name: 'JWT · OAuth 2.0', icon: 'jwt', cite: '№ 02 · 03' },
+      { name: 'SQL', standing: 'Working fluency' },
     ],
   },
   {
@@ -99,12 +108,12 @@ export const skillClusters = [
     title: 'The Workshop',
     sub: 'Infrastructure & Tools',
     rows: [
-      { name: 'Docker', icon: 'docker' },
-      { name: 'AWS' },
-      { name: 'Git & GitHub', icon: 'git' },
-      { name: 'n8n Automation', icon: 'n8n' },
-      { name: 'Pandas · NumPy', icon: 'pandas' },
-      { name: 'Vercel · Vite', icon: 'vite' },
+      { name: 'Git & GitHub', icon: 'git', standing: 'Core practice' },
+      { name: 'Vercel · Vite', icon: 'vite', cite: '№ 02 · 03' },
+      { name: 'Docker', icon: 'docker', standing: 'Working fluency' },
+      { name: 'Pandas · NumPy', icon: 'pandas', standing: 'Working fluency' },
+      { name: 'n8n Automation', icon: 'n8n', standing: 'Working fluency' },
+      { name: 'AWS', standing: 'In study' },
     ],
   },
 ]

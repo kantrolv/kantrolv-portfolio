@@ -1,14 +1,15 @@
 import { Fragment, useLayoutEffect, useRef } from 'react'
 import { gsap } from '../lib/gsap'
-import { splitIntoWords, riseFrom, prepareStrokeDraw } from '../lib/stage'
+import { splitIntoWords, riseFrom } from '../lib/stage'
 import MarginNote from '../components/MarginNote'
 import Watermark from '../components/Watermark'
 import SkillMark from '../components/SkillMark'
 import { site, skillClusters } from '../data/site'
 
 /**
- * The Honours Board — four ruled clusters, each row drawing in with a
- * dotted leader and a gold tick, like names inked onto a club board.
+ * The Honours Board — ruled clusters, each row drawing in with a dotted
+ * leader and a meaningful annotation: a gold catalogue citation where the
+ * skill shipped, or an honest standing where it hasn't yet.
  */
 export default function Skills({ ready, reduced, width }) {
   const root = useRef(null)
@@ -20,7 +21,8 @@ export default function Skills({ ready, reduced, width }) {
       const q = gsap.utils.selector(root)
 
       // header
-      const title = splitIntoWords(q('.skills__title')[0])
+      const titleEl = q('.skills__title')[0]
+      const title = splitIntoWords(titleEl)
       splits.push(title)
       gsap
         .timeline({
@@ -33,14 +35,16 @@ export default function Skills({ ready, reduced, width }) {
         })
         .from(q('.section-head .label'), { autoAlpha: 0, y: 12, duration: 0.4, stagger: 0.08 }, 0)
         .from(q('.section-head .rule'), { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'silk' }, 0.05)
-        .from(...riseFrom(title.words, { duration: 0.8, stagger: 0.06 }), 0.15)
+        .from(...riseFrom(title.words, { duration: 0.8, stagger: 0.06, blur: true }), 0.15)
+        .fromTo(
+          titleEl,
+          { fontVariationSettings: '"wght" 420' },
+          { fontVariationSettings: '"wght" 500', duration: 0.8, ease: 'silk' },
+          0.15
+        )
 
       // each cluster is its own staged board
       q('.cluster').forEach((cluster) => {
-        const rows = cluster.querySelectorAll('.cluster__row')
-        const ticks = cluster.querySelectorAll('.tick')
-        ticks.forEach((t) => prepareStrokeDraw(t))
-
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: cluster,
@@ -69,12 +73,11 @@ export default function Skills({ ready, reduced, width }) {
             { clipPath: 'inset(0 0% 0 0)', duration: 0.6, stagger: 0.07, ease: 'silk' },
             0.32
           )
-          .to(
-            cluster.querySelectorAll('.tick [data-draw]'),
-            { strokeDashoffset: 0, duration: 0.5, stagger: 0.07, ease: 'silk' },
+          .from(
+            cluster.querySelectorAll('.cluster__row .note'),
+            { autoAlpha: 0, x: 8, duration: 0.5, stagger: 0.07, ease: 'silk' },
             0.5
           )
-        void rows
       })
 
       // appendix — certifications
@@ -100,7 +103,7 @@ export default function Skills({ ready, reduced, width }) {
     <section id="honours" className="scene skills" ref={root} aria-label="Skills">
       <Watermark kind="mono" style={{ left: '-10vw', top: '32%' }} ready={ready} reduced={reduced} />
       <MarginNote top="18%" left="1.4rem" vertical speed={0.5} ready={ready} reduced={reduced}>
-        Nº 02 / V — <span className="gold">The Index</span>
+        III / V — <span className="gold">The Honours</span>
       </MarginNote>
       <MarginNote top="58%" right="1.4rem" vertical speed={-0.45} ready={ready} reduced={reduced}>
         {site.year} — Kept in good standing
@@ -108,8 +111,8 @@ export default function Skills({ ready, reduced, width }) {
 
       <div className="scene__inner">
         <div className="section-head">
-          <span className="label label--gold">Nº 02</span>
-          <span className="label">The Index</span>
+          <span className="label label--gold">№ III</span>
+          <span className="label">The Honours</span>
           <hr className="rule" />
         </div>
 
@@ -117,7 +120,7 @@ export default function Skills({ ready, reduced, width }) {
 
         <div className="skills__grid">
           {skillClusters.map((cluster) => (
-            <div className="cluster" key={cluster.title}>
+            <div className={`cluster${cluster.lead ? ' cluster--lead' : ''}`} key={cluster.title}>
               <div className="cluster__head">
                 <span className="cluster__numeral" aria-hidden="true">
                   {cluster.numeral}.
@@ -127,13 +130,13 @@ export default function Skills({ ready, reduced, width }) {
               </div>
               <ul className="cluster__rows">
                 {cluster.rows.map((row) => (
-                  <li className="cluster__row" key={row.name}>
+                  <li className={`cluster__row${row.lead ? ' cluster__row--lead' : ''}`} key={row.name}>
                     <SkillMark icon={row.icon} />
                     <span className="name">{row.name}</span>
                     <span className="leader" aria-hidden="true" />
-                    <svg className="tick" viewBox="0 0 13 11" aria-hidden="true">
-                      <path data-draw d="M1 6 L4.6 9.5 L12 1" />
-                    </svg>
+                    <span className={`note${row.cite ? ' note--cite' : ''}`}>
+                      {row.cite ? `Shipped · ${row.cite}` : row.standing}
+                    </span>
                     <span className="row-rule" aria-hidden="true" />
                   </li>
                 ))}

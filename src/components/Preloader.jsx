@@ -1,79 +1,92 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { gsap } from '../lib/gsap'
+import { prepareStrokeDraw } from '../lib/stage'
+import Monogram from './Monogram'
 import { site } from '../data/site'
 
 /**
- * Gold percentage counter on deep cream, then the paper parts along a
- * drawn gold seam. `onOpen` fires as the curtain begins to lift (so the
- * overture can start beneath it); `onGone` removes it from the tree.
+ * The overture curtain. The K·V monogram inks itself stroke by stroke on
+ * deep cream, then the paper parts along a drawn gold seam. `onOpen` fires
+ * as the curtain begins to lift (so the overture can start beneath it);
+ * `onGone` removes it from the tree.
+ *
+ * Runs once per session (App holds the flag) and any click or key
+ * fast-forwards it — the hold is a dummy tween inside the timeline, so a
+ * single timeScale compresses the wait and the parting alike.
  */
-const MIN_HOLD_MS = 2300 // the counter deserves to be read
+const MIN_DRAW_MS = 750 // one readable beat for the monogram
 
 export default function Preloader({ ready, reduced, onOpen, onGone }) {
   const root = useRef(null)
-  const count = useRef(null)
-  const state = useRef({ v: 0 })
-  const mountedAt = useRef(0)
-
-  useEffect(() => {
-    mountedAt.current = performance.now()
-  }, [])
+  const mono = useRef(null)
+  const mountedAt = useRef(performance.now())
+  const drawTl = useRef(null)
+  const openTl = useRef(null)
+  const skipped = useRef(false)
 
   useEffect(() => {
     document.body.classList.add('is-loading')
     return () => document.body.classList.remove('is-loading')
   }, [])
 
-  // Phase 1 — count toward 96 while fonts and modules settle.
-  useEffect(() => {
+  // Phase 1 — the monogram inks itself while fonts and modules settle.
+  useLayoutEffect(() => {
     if (reduced) return
-    const tween = gsap.to(state.current, {
-      v: 96,
-      duration: 1.9,
-      ease: 'silk',
-      onUpdate: () => {
-        if (count.current) count.current.textContent = Math.round(state.current.v)
-      },
-    })
-    return () => tween.kill()
+    const q = gsap.utils.selector(root)
+    const shapes = prepareStrokeDraw(mono.current)
+    gsap.set(q('.preloader__label'), { autoAlpha: 0, y: 8 })
+    const tl = gsap.timeline()
+    tl.to(shapes, { strokeDashoffset: 0, duration: 0.85, stagger: 0.04, ease: 'silk' }, 0)
+      .to(q('.preloader__label'), { autoAlpha: 1, y: 0, duration: 0.5, ease: 'regal' }, 0.35)
+    drawTl.current = tl
+    return () => tl.kill()
   }, [reduced])
 
-  // Phase 2 — once ready (and the counter has been readable), land on 100
-  // and part the paper.
+  // Phase 2 — once ready, hold until the monogram has had its beat, then part.
   useEffect(() => {
     if (!ready) return
-
     const q = gsap.utils.selector(root)
 
     if (reduced) {
-      if (count.current) count.current.textContent = 100
       const tl = gsap.timeline({ onComplete: onGone })
       tl.call(onOpen)
       tl.to(root.current, { autoAlpha: 0, duration: 0.4, ease: 'none' }, 0.2)
+      openTl.current = tl
       return () => tl.kill()
     }
 
     const elapsed = performance.now() - mountedAt.current
-    const hold = Math.max(0, MIN_HOLD_MS - elapsed) / 1000
+    const hold = Math.max(0, MIN_DRAW_MS - elapsed) / 1000
 
-    const tl = gsap.timeline({ onComplete: onGone, delay: hold })
-    tl.to(state.current, {
-      v: 100,
-      duration: 0.45,
-      ease: 'power2.out',
-      onUpdate: () => {
-        if (count.current) count.current.textContent = Math.round(state.current.v)
-      },
-    })
-      .to(q('.preloader__content'), { autoAlpha: 0, y: -26, duration: 0.55, ease: 'silk' }, '+=0.15')
-      .to(q('.preloader__seam'), { scaleX: 1, duration: 0.7, ease: 'silk' }, '<0.1')
+    const tl = gsap.timeline({ onComplete: onGone })
+    tl.to({}, { duration: hold }) // skippable wait — timeScale compresses it
+      .to(q('.preloader__content'), { autoAlpha: 0, y: -24, duration: 0.5, ease: 'silk' })
+      .to(q('.preloader__seam'), { scaleX: 1, duration: 0.6, ease: 'silk' }, '<0.1')
       .call(onOpen)
-      .to(q('.preloader__seam'), { autoAlpha: 0, duration: 0.3, ease: 'none' }, '+=0.05')
-      .to(q('.preloader__panel--top'), { yPercent: -101, duration: 1.15, ease: 'regal' }, '<')
-      .to(q('.preloader__panel--bottom'), { yPercent: 101, duration: 1.15, ease: 'regal' }, '<0.06')
-
+      .to(q('.preloader__seam'), { autoAlpha: 0, duration: 0.25, ease: 'none' }, '+=0.04')
+      .to(q('.preloader__panel--top'), { yPercent: -101, duration: 1.0, ease: 'regal' }, '<')
+      .to(q('.preloader__panel--bottom'), { yPercent: 101, duration: 1.0, ease: 'regal' }, '<0.06')
+    if (skipped.current) tl.timeScale(2.6)
+    openTl.current = tl
     return () => tl.kill()
   }, [ready, reduced, onOpen, onGone])
+
+  // Any interaction fast-forwards the curtain.
+  useEffect(() => {
+    if (reduced) return
+    const skip = () => {
+      if (skipped.current) return
+      skipped.current = true
+      drawTl.current?.timeScale(4)
+      openTl.current?.timeScale(2.6)
+    }
+    window.addEventListener('pointerdown', skip)
+    window.addEventListener('keydown', skip)
+    return () => {
+      window.removeEventListener('pointerdown', skip)
+      window.removeEventListener('keydown', skip)
+    }
+  }, [reduced])
 
   return (
     <div className="preloader" ref={root} aria-hidden="true">
@@ -81,9 +94,7 @@ export default function Preloader({ ready, reduced, onOpen, onGone }) {
       <div className="preloader__panel preloader__panel--bottom" />
       <span className="preloader__seam" />
       <div className="preloader__content">
-        <div className="preloader__count">
-          <span ref={count}>0</span>
-        </div>
+        <Monogram className="preloader__monogram" ref={mono} />
         <p className="preloader__label label">
           {site.name} · Portfolio {site.year}
         </p>

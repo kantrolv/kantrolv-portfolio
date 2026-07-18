@@ -10,10 +10,16 @@ every section is a staged reveal (à la SBS *The Boat*), and the space
 
 | Token | Value | Use |
 | --- | --- | --- |
-| Paper | `#F4EFE6` | ground; a deeper cream `#EDE5D5` for card stock |
-| Ink | `#1A1A18` | display type, body headings |
+| Paper | `#F4EFE6` | ground; deeper cream `#EDE5D5` for card stock; `#F1EBDF` for catalogue plates |
+| Ink | `#1A1A18` | display type, body headings; body ink at 68% (AA-small on every paper) |
 | Forest | `#1E3A2F` | italic emphasis, the "V" of the monogram, epigraphs |
-| Gold | `#B08D57` | rules, numerals, ticks, metrics — never large fills |
+| Gold (ornament) | `#B08D57` | rules, borders, diamonds, numeral strokes — never text |
+| Gold (text) | `#7E5F33` | small-caps gold labels/citations — AA-small on all papers |
+| Gold (figure) | `#9A7434` | large metric figures — AA-large on all papers |
+
+Contrast is engineered, not eyeballed: the three text tokens were derived
+against all three paper tones with a WCAG script; pale gold `#B08D57` is
+banned from carrying text at any size.
 
 - **Type**: Playfair Display (variable, self-hosted) for display + italics;
   Inter (variable) for body and small-caps labels. Small caps are synthesized
@@ -82,30 +88,47 @@ agentic systems, NLP, OpenAI/Groq, AWS, SQL) get a quiet gold diamond in
 the same 17px box, keeping the ruled column aligned and the palette
 strictly cream/ink/gold. Tone is carried by `fill` (not element opacity),
 leaving `opacity` free for the row's staggered reveal. Data-driven via
-`{ name, icon }` rows in `src/data/site.js`.
+`{ name, icon, cite | standing, lead }` rows in `src/data/site.js` —
+`cite` claims only what the catalogue backs; `standing` is an honest tier.
 - **Ornament**: a stroke-only K·V monogram, plate-frame corner marks fixed at
   the viewport corners, thin gold rules everywhere, dotted leaders, diamonds.
 
 ## The scroll experience
 
-1. **Overture** — preloader counts in gold serif, the paper parts along a
-   drawn gold seam; the baseline rule draws across, the name sets line by
-   line from masks, the monogram inks itself stroke by stroke. Parallax
-   drift on exit.
-2. **The Introduction** — pinned spread (`+=150%`, scrub): pull-quote sets
-   word by word, the initial settles into the margin, two justified columns
-   rise line by line, education footer draws last.
-3. **The Honours Board** — four ruled clusters (Intelligence / Front of
-   House / Back of House / The Workshop). Rows reveal with clip-wiped
-   leaders and hand-drawn gold ticks; certifications set as an appendix.
-4. **The Catalogue** — the centrepiece. Each entry: the giant serif numeral
-   is stroke-drawn *during the approach* (so no scroll increment arrives
-   empty), then the entry pins (`+=170%`, scrub) and sets itself — title
-   words, extending rule, description lines, kinetic gold metric, tags,
-   underline-wipe links.
-5. **Correspondence** — a cream card whose double gold border is literally
-   drawn (measured SVG rects), a directory of addresses with dotted leaders,
-   and a fine footer with the live Pune clock.
+1. **Overture** — the curtain: the K·V monogram inks itself stroke by
+   stroke (≤1.2s before the part begins, any click/key fast-forwards it,
+   and it runs once per session via `sessionStorage`), then the paper parts
+   along a drawn gold seam. The name sets line by line from masks with the
+   role subtitle directly beneath it, the guiding statement ("Intelligent
+   systems, finished by hand.") settles under that, baseline rule, scroll
+   cue. The name is **kinetic**: each glyph lifts and its ink swells
+   (variable `wght` on a Houdini-registered property) near the pointer —
+   fine-pointer only, transforms + one custom property, nothing else.
+2. **The Introduction** — pinned spread (`+=150%`, scrub): pull-quote
+   ("At the meeting point of intelligence and craft.") sets word by word,
+   the initial settles into the margin, two **ragged-right** columns
+   (never justified) rise line by line, education footer draws last.
+3. **The Honours Board** — ruled clusters, ranked. Intelligence leads the
+   board full-width with its headline rows set in serif; every row's
+   annotation *says something*: a gold catalogue citation (`Shipped · № 01`)
+   where the skill shipped, or an honest standing (`Core practice` /
+   `Working fluency` / `In study`) where it hasn't. The identical-tick
+   system is gone. Certifications set as an appendix.
+4. **The Catalogue** — the showstopper, staged as an exhibition. Each
+   project is a physical **plate**: a distinct sheet (`#F1EBDF`, hairline
+   gold frame, corner plate index) laid onto the paper as it approaches —
+   drifting up with a hair of rotation while its layered lift-shadow
+   settles — while the giant serif numeral stroke-draws. The plate then
+   pins (`+=170%`, scrub) and sets itself — title words with ink-dry blur
+   and weight-settle, extending rule, description lines, kinetic gold
+   metric **with its honesty line** (the baseline the figure is measured
+   against, e.g. "vs naive full-context prompting"), tags, links — and
+   closes with the **page-turn**: the sheet lifts (scale + rise, shadow
+   deepening beneath) as the next plate arrives.
+5. **Correspondence** — a cream card lifted on layered shadow, its double
+   gold border literally drawn (measured SVG rects), a directory of
+   addresses with dotted leaders, and a fine footer with the live Pune
+   clock.
 
 **Between every movement**: an original epigraph (centred serif italic,
 rules parting, a diamond turning in) that also drifts on parallax; vertical
@@ -118,12 +141,16 @@ the margins throughout.
   `silk` (≈ `cubic-bezier(.65,0,.15,1)`) for draws. Consistency is what
   makes it feel expensive.
 - GSAP ScrollTrigger + Lenis (`duration 1.15`, exponential easing).
-- Text reveals via SplitText line/word masks (free since GSAP 3.13);
-  justified interior lines are re-justified with `text-align-last`.
+- Text reveals via SplitText line/word masks (free since GSAP 3.13).
+  Display titles additionally get an **ink-dry settle** (blur 7px → crisp,
+  titles only — too costly for body lines) and a **weight-settle**
+  (variable `wght` 420 → 500) as they enter.
 - Stroke draws via `stroke-dashoffset`; `<text>` numerals use a
   `data-draw-len` override since text has no `getTotalLength`.
 - Kinetic numbers: years and metrics count up inside scrubbed timelines,
   faded in at their cue so markup defaults never leak early.
+- **Letterpress rules**: every gold rule carries a 1px light catch below
+  (`box-shadow`) so dividers read as incised, not drawn.
 
 ## Engineering decisions
 

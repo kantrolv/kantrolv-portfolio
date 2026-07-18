@@ -8,7 +8,10 @@
  *   year        integer — counts up on reveal
  *   filedUnder  small-caps marginalia label
  *   description editorial paragraph (staged line by line)
- *   metric      { value, prefix?, suffix?, label } — kinetic gold figure
+ *   metric      { value, prefix?, suffix?, label, basis? } — kinetic gold
+ *               figure. `basis` names the comparison baseline; a figure
+ *               without one reads invented, so either state the baseline
+ *               or drop the number.
  *   tags        small-caps index terms
  *   github/demo '#' placeholders until real links are pasted in
  */
@@ -20,7 +23,12 @@ export const projects = [
     filedUnder: 'Intelligent Systems',
     description:
       'A research companion that reads, remembers, and reasons. Built on LangGraph with Groq inference and FAISS retrieval, it runs semantic web-search pipelines, holds conversational memory across a session, and files its findings into exportable PDF reports — with follow-up questions drafted before you think to ask them.',
-    metric: { value: 52, suffix: '%', label: 'reduction in token usage' },
+    metric: {
+      value: 52,
+      suffix: '%',
+      label: 'fewer tokens per query',
+      basis: 'vs naive full-context prompting',
+    },
     tags: ['LangGraph', 'Groq', 'FAISS', 'RAG', 'Python'],
     github: 'https://github.com/kantrolv/research_ai_assistant.git',
     demo: 'https://research-aiassistant.streamlit.app/',

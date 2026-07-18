@@ -42,7 +42,8 @@ export default function Contact({ ready, reduced, width }) {
 
       const borderShapes = prepareStrokeDraw(svg)
       const monogramShapes = prepareStrokeDraw(q('.contact__monogram')[0])
-      const title = splitIntoWords(q('.contact__title')[0])
+      const titleEl = q('.contact__title')[0]
+      const title = splitIntoWords(titleEl)
       const note = splitIntoLines(q('.contact__note')[0])
       splits.push(title, note)
 
@@ -58,7 +59,13 @@ export default function Contact({ ready, reduced, width }) {
       tl.to(borderShapes, { strokeDashoffset: 0, duration: 1.5, ease: 'silk', stagger: 0.15 }, 0)
         .to(monogramShapes, { strokeDashoffset: 0, duration: 1.1, stagger: 0.05, ease: 'silk' }, 0.25)
         .from(q('.contact__salut'), { autoAlpha: 0, y: 10, duration: 0.45 }, 0.45)
-        .from(...riseFrom(title.words, { duration: 0.8, stagger: 0.08 }), 0.55)
+        .from(...riseFrom(title.words, { duration: 0.8, stagger: 0.08, blur: true }), 0.55)
+        .fromTo(
+          titleEl,
+          { fontVariationSettings: '"wght" 420' },
+          { fontVariationSettings: '"wght" 500', duration: 0.8, ease: 'silk' },
+          0.55
+        )
         .from(...riseFrom(note.lines, { duration: 0.6, stagger: 0.06 }), 0.8)
         .from(q('.contact__list .label'), { autoAlpha: 0, y: 8, duration: 0.45, stagger: 0.06 }, 1.0)
         .fromTo(
@@ -95,7 +102,7 @@ export default function Contact({ ready, reduced, width }) {
     <section id="correspondence" className="scene contact" ref={root} aria-label="Contact">
       <Watermark kind="mono" style={{ left: '-11vw', top: '42%' }} ready={ready} reduced={reduced} />
       <MarginNote top="22%" left="1.4rem" vertical speed={0.5} ready={ready} reduced={reduced}>
-        Nº 04 / V — <span className="gold">Correspondence</span>
+        V / V — <span className="gold">Correspondence</span>
       </MarginNote>
       <MarginNote top="48%" right="1.4rem" vertical speed={-0.45} ready={ready} reduced={reduced}>
         Visitors received — by appointment
@@ -103,7 +110,7 @@ export default function Contact({ ready, reduced, width }) {
 
       <div className="scene__inner">
         <div className="section-head">
-          <span className="label label--gold">Nº 04</span>
+          <span className="label label--gold">№ V</span>
           <span className="label">Correspondence</span>
           <hr className="rule" />
         </div>

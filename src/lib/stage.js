@@ -7,20 +7,12 @@ import { gsap, SplitText } from './gsap'
  */
 
 /** Split an element into masked lines and return a tween-ready target array. */
-export function splitIntoLines(el, { justify = false } = {}) {
-  const split = SplitText.create(el, {
+export function splitIntoLines(el) {
+  return SplitText.create(el, {
     type: 'lines',
     mask: 'lines',
     linesClass: 'st-line',
   })
-  if (justify) {
-    // Re-justify interior lines: each split line is its own block, so the
-    // browser treats it as a "last line" and refuses to stretch it.
-    split.lines.forEach((line, i) => {
-      if (i < split.lines.length - 1) line.style.textAlignLast = 'justify'
-    })
-  }
-  return split
 }
 
 /** Split an element into masked words. */
@@ -32,17 +24,23 @@ export function splitIntoWords(el) {
   })
 }
 
-/** Standard rise-from-mask config for split lines/words. */
+/**
+ * Standard rise-from-mask config for split lines/words.
+ * `blur: true` adds an ink-dry settle (blurred → crisp) — display titles
+ * only; the filter is too costly to hang on every body line.
+ */
 export function riseFrom(targets, overrides = {}) {
+  const { fade, blur, ...rest } = overrides
   return [
     targets,
     {
       yPercent: 115,
-      opacity: overrides.fade === false ? 1 : 0.001,
+      opacity: fade === false ? 1 : 0.001,
+      ...(blur ? { filter: 'blur(7px)' } : {}),
       duration: 0.9,
       stagger: 0.08,
       ease: 'regal',
-      ...overrides,
+      ...rest,
     },
   ]
 }

@@ -52,12 +52,22 @@ function PlateCorners({ started, reduced }) {
   )
 }
 
+const SEEN_KEY = 'kv-overture-seen' // curtain runs once per session
+
+const seenThisSession = () => {
+  try {
+    return sessionStorage.getItem(SEEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 export default function App() {
   const reduced = useReducedMotion()
   const width = useWidthBucket()
   const [ready, setReady] = useState(false) // fonts settled — scenes may build
   const [started, setStarted] = useState(false) // curtain lifting — overture plays
-  const [loaderGone, setLoaderGone] = useState(false)
+  const [loaderGone, setLoaderGone] = useState(seenThisSession)
 
   useEffect(() => {
     let alive = true
@@ -66,6 +76,11 @@ export default function App() {
       alive = false
     }
   }, [])
+
+  // Revisits skip the curtain; the overture still prints once fonts settle.
+  useEffect(() => {
+    if (loaderGone && !started && ready) setStarted(true)
+  }, [loaderGone, started, ready])
 
   // Lenis — inertial paper. Skipped entirely under reduced motion.
   useEffect(() => {
@@ -110,7 +125,14 @@ export default function App() {
     if (started) document.documentElement.classList.add('is-live')
   }, [started])
 
-  const handleOpen = useCallback(() => setStarted(true), [])
+  const handleOpen = useCallback(() => {
+    setStarted(true)
+    try {
+      sessionStorage.setItem(SEEN_KEY, '1')
+    } catch {
+      /* private mode — the curtain simply plays again */
+    }
+  }, [])
   const handleGone = useCallback(() => setLoaderGone(true), [])
 
   const stage = { ready, reduced, width }
